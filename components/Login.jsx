@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/AuthContext'
 import React, { useState } from 'react'
 
 export default function Login() {
@@ -5,17 +6,33 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [isLogginIn, setIsLogginIn] = useState(true)
-  function submitHandler() {
+  const { login, signup, currentUser } = useAuth()
+  console.log(currentUser);
+
+  async function submitHandler() {
     if (!email || !password) {
       setError('Please fill all the fields')
       setTimeout(() => {
         setError(null)
       }, 2000)
     }
+
+    if (isLogginIn) {
+      try {
+        return await login(email, password)
+      } catch (error) {
+        setError(error.message)
+        setTimeout(() => {
+          setError(null)
+        }, 2000)
+      }
+    }
+
+    await signup(email, password)
   }
   return (
     <div className='flex flex-col items-center justify-center flex-1 gap-2 sm:gap-4'>
-      <h1 className='text-2xl font-extrabold sm:text-4xl'>{ isLogginIn ? 'LOGIN' : 'REGISTER' }</h1>
+      <h1 className='text-2xl font-extrabold sm:text-4xl'>{isLogginIn ? 'LOGIN' : 'REGISTER'}</h1>
       {error && <div className="shadow-lg alert alert-error max-w-[300px]">
         <div>
           <svg xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 w-6 h-6 stroke-current" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
